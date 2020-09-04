@@ -16,3 +16,6 @@ We'll let the player choose how many mines they wish to play with by inputting a
 After asking the player, generate a new field and display it. The mines are still visible at this stage, and should be on a
 9x9 size field.
 
+#### Stage 3
+In this stage, we'll now output the number of mines around a cell instead of the empty cell symbol. Most cells will have 8 neighbors,
+unless it's on an edge, when it'll have 5 neighbors, or the corner, when it'll have only 3 neighbors.
