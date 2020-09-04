@@ -1,18 +1,40 @@
 package minesweeper;
 
+import java.util.Random;
+
 public class Minefield {
+    private static Random rnd = null;
     private final char[][] field;
 
     Minefield() {
-        field = new char[][]{{'.', 'X', '.', '.', '.', 'X', '.', '.', 'X'},
+        field = new char[][]{{'.', '.', '.', '.', '.', '.', '.', '.', '.'},
                 {'.', '.', '.', '.', '.', '.', '.', '.', '.'},
-                {'.', 'X', '.', 'X', '.', '.', 'X', '.', '.'},
                 {'.', '.', '.', '.', '.', '.', '.', '.', '.'},
-                {'.', 'X', '.', '.', 'X', '.', '.', 'X', '.'},
-                {'X', '.', '.', '.', '.', 'X', '.', '.', '.'},
-                {'.', '.', '.', '.', '.', '.', '.', 'X', '.'},
-                {'.', '.', 'X', '.', 'X', '.', '.', '.', '.'},
-                {'.', 'X', '.', '.', '.', '.', 'X', '.', '.'}};
+                {'.', '.', '.', '.', '.', '.', '.', '.', '.'},
+                {'.', '.', '.', '.', '.', '.', '.', '.', '.'},
+                {'.', '.', '.', '.', '.', '.', '.', '.', '.'},
+                {'.', '.', '.', '.', '.', '.', '.', '.', '.'},
+                {'.', '.', '.', '.', '.', '.', '.', '.', '.'},
+                {'.', '.', '.', '.', '.', '.', '.', '.', '.'}};
+    }
+
+    Minefield(int mines) {
+        this();
+        rnd = new Random();
+        initField(mines);
+    }
+
+    private void initField(int mines) {
+        int mine = 0;
+        do {
+            int spot = rnd.nextInt(81);
+            int row = spot / 9;
+            int col = spot % 9;
+            if (field[row][col] != 'X') {
+                field[row][col] = 'X';
+                mine++;
+            }
+        } while (mine < mines);
     }
 
     @Override
