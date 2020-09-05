@@ -19,3 +19,8 @@ After asking the player, generate a new field and display it. The mines are stil
 #### Stage 3
 In this stage, we'll now output the number of mines around a cell instead of the empty cell symbol. Most cells will have 8 neighbors,
 unless it's on an edge, when it'll have 5 neighbors, or the corner, when it'll have only 3 neighbors.
+
+#### Stage 4
+In this stage, we create a simple game loop. After generating all the mines and filling the field with numbers that describe their positions,
+make it that only the numbers are shown to the user. No mines should be shown! The user should only find all the mines on the field.
+
