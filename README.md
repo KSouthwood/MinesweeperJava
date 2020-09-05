@@ -22,5 +22,10 @@ unless it's on an edge, when it'll have 5 neighbors, or the corner, when it'll h
 
 #### Stage 4
 In this stage, we create a simple game loop. After generating all the mines and filling the field with numbers that describe their positions,
-make it that only the numbers are shown to the user. No mines should be shown! The user should only find all the mines on the field.
+make it that only the numbers are shown to the user. No mines should be shown! The user should only find all the mines on the field. They do
+so by entering coordinates of the cell they wish to mark. The game ends when they have correctly marked all the mines.
 
+#### Stage 5
+For this stage, we will make it a real game. After asking the user how many mines they want on the field, display an empty grid. In addition
+to entering the coordinates of the cell they want, they need to enter either 'mine' or 'free' to flag/unflag or clear it. They lose if they
+try to clear a cell that contains a mine. They win by either correctly marking all mines with flags or clearing all non-mine cells.
