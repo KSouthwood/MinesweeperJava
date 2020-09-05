@@ -4,7 +4,7 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        Minefield minefield = new Minefield(getMines());
+        Minefield minefield = new Minefield(9, getMines());
         System.out.println(minefield.toString());
     }
 
