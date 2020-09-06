@@ -4,13 +4,16 @@ import java.util.Arrays;
 import java.util.Random;
 
 public class Minefield {
-    private static Random rnd = null;
-    private char[][] field;
-    private boolean[][] mines;
-    private static int size;
+    private Random rnd = null;
+    private final char[][] field;
+    private final boolean[][] mines;
+    private final int size;
     private int minesMarked;
     private int minesCorrect;
     private int minesPlaced;
+    private int cellsToClear;
+    private boolean steppedOnMine;
+    private boolean firstMove;
 
     Minefield(int fieldSize) {
         size = fieldSize;
@@ -27,25 +30,25 @@ public class Minefield {
     Minefield(int fieldSize, int numOfMines) {
         this(fieldSize);
         rnd = new Random();
-        this.minesPlaced = numOfMines;
-        this.minesCorrect = 0;
-        this.minesMarked = 0;
+        minesPlaced = numOfMines;
+        minesCorrect = 0;
+        minesMarked = 0;
+        cellsToClear = (fieldSize * fieldSize) - numOfMines;
+        steppedOnMine = false;
+        firstMove = true;
         populateFieldWithMines(numOfMines);
     }
 
     private void populateFieldWithMines(int numOfMines) {
-        int minesPlaced = 0;
-        do {
+        for (int i = 0; i < numOfMines;) {
             int spot = rnd.nextInt(81);
             int row = spot / size;
             int col = spot % size;
             if (!mines[row][col]) {
                 mines[row][col] = true;
-                minesPlaced++;
+                i++;
             }
-        } while (minesPlaced < numOfMines);
-
-        determineNeighbors();
+        }
     }
 
     /**
@@ -73,7 +76,7 @@ public class Minefield {
      * @param cellCol column of field
      * @return number of mines around specified cell
      */
-    private int howManyMines(int cellRow, int cellCol) {
+    private char howManyMines(int cellRow, int cellCol) {
         int numOfMines = 0;
         for (int row = Math.max(0, cellRow - 1); row <= Math.min(size - 1, cellRow + 1); row++) {
             for (int col = Math.max(0, cellCol - 1); col <= Math.min(size - 1, cellCol + 1); col++) {
@@ -85,23 +88,27 @@ public class Minefield {
                 }
             }
         }
-        return numOfMines;
+        return numOfMines == 0 ? '/' : String.valueOf(numOfMines).charAt(0);
     }
 
-    public boolean markCell(int[] cell) {
-        int row = cell[1];
-        int col = cell[0];
-        if (Character.isDigit(field[row][col])) {
-            return false;
+    private void revealMines() {
+        for (int row = 0; row < size; row++) {
+            for (int col = 0; col < size; col++) {
+                if (mines[row][col]) {
+                    field[row][col] = 'X';
+                }
+            }
         }
+    }
 
+    public void markCell(int row, int col) {
         if (field[row][col] == '.') {
             field[row][col] = '*';
             minesMarked++;
             if (mines[row][col]) {
                 minesCorrect++;
             }
-            return true;
+            return;
         }
 
         if (field[row][col] == '*') {
@@ -110,16 +117,75 @@ public class Minefield {
             if (mines[row][col]) {
                 minesCorrect--;
             }
-            return true;
+            return;
         }
 
-        return false; // somethings wrong if we reach here, the field char is something besides a digit, '.' or '*'
+        System.out.println("Cell already cleared. Try again.");
+    }
+
+    public void clearCell(int row, int col) {
+        if (firstMove) {
+            while (mines[row][col]) {
+                mines[row][col] = false;
+                populateFieldWithMines(1);
+            }
+            firstMove = false;
+        }
+
+        if (mines[row][col]) {
+            steppedOnMine = true;
+            revealMines();
+            return;
+        }
+
+        if (!(field[row][col] == '.' || field[row][col] == '*')) {
+            System.out.println("Cell already cleared.");
+            return;
+        }
+
+        if (field[row][col] == '*') {
+            minesMarked--;
+        }
+
+        field[row][col] = howManyMines(row, col);
+        cellsToClear--;
+        if (field[row][col] == '/') {
+            clearZeroCell(row, col);
+        }
+    }
+
+    private void clearZeroCell(int cellRow, int cellCol) {
+        for (int row = Math.max(0, cellRow - 1); row <= Math.min(size - 1, cellRow + 1); row++) {
+            for (int col = Math.max(0, cellCol - 1); col <= Math.min(size - 1, cellCol + 1); col++) {
+                if (row == cellRow && col == cellCol) {
+                    continue;
+                }
+
+                if (field[row][col] != '.' && field[row][col] != '*') {
+                    continue;
+                }
+
+                if (field[row][col] == '*') {
+                    minesMarked--;
+                }
+
+                field[row][col] = howManyMines(row, col);
+                cellsToClear--;
+                if (field[row][col] == '/') {
+                    clearZeroCell(row, col);
+                }
+            }
+        }
     }
 
     public boolean allMinesFound() {
-        return minesMarked == minesCorrect && minesCorrect == minesPlaced;
+        return (minesMarked == minesCorrect && minesCorrect == minesPlaced) || cellsToClear == 0;
     }
-    
+
+    public boolean isSteppedOnMine() {
+        return steppedOnMine;
+    }
+
     @Override
     public String toString() {
         StringBuilder result = new StringBuilder();

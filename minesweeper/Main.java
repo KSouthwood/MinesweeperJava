@@ -6,22 +6,36 @@ public class Main {
     private static final Scanner input = new Scanner(System.in);
 
     public static void main(String[] args) {
-        int[] coords;
+        String[] command;
         Minefield minefield = new Minefield(9, getMines());
 
         do {
             System.out.println(minefield.toString());
-            do {
-                coords = getCoordinates();
-                if (minefield.markCell(coords)) {
+            command = getCoordinates();
+            int col = Integer.parseInt(command[0]) - 1;
+            int row = Integer.parseInt(command[1]) - 1;
+
+            switch (command[2]) {
+                case "mine":
+                    minefield.markCell(row, col);
                     break;
-                }
-                System.out.println("There is a number here!");
-            } while (true);
-        } while (!minefield.allMinesFound());
+                case "free":
+                    minefield.clearCell(row, col);
+                    break;
+                default:
+                    break;
+            }
+        } while (!minefield.allMinesFound() && !minefield.isSteppedOnMine());
 
         System.out.println(minefield.toString());
-        System.out.println("Congratulations! You found all mines!");
+
+        if (minefield.allMinesFound()) {
+            System.out.println("Congratulations! You found all mines!");
+        }
+
+        if (minefield.isSteppedOnMine()) {
+            System.out.println("You stepped on a mine and failed!");
+        }
     }
 
     /**
@@ -30,40 +44,43 @@ public class Main {
      * @return number of mines
      */
     private static int getMines() {
-        int mines;
+        int numOfMines = 0;
 
         do {
             System.out.print("How many mines do you want on the field? ");
-            mines = input.nextInt();
-            if (mines < 1 || mines > 81) {
+            String mines = input.nextLine();
+            if (!mines.matches("\\b([1-9]|[1-7][0-9]|8[0-1])\\b")) {
                 System.out.println("Invalid value. Please enter a number from 1 to 81.");
+            } else {
+                numOfMines = Integer.parseInt(mines);
             }
-        } while (mines < 1 || mines > 81);
+        } while (numOfMines == 0);
 
-        input.nextLine();
-        return mines;
+        return numOfMines;
     }
 
-    private static int[] getCoordinates() {
-        int[] cell = new int[2];
+    private static String[] getCoordinates() {
+        String[] params;
 
         do {
-            System.out.print("Set/delete mines marks (x and y coordinates): ");
-            String[] coords = input.nextLine().split(" ");
-            if (coords.length != 2) {
+            System.out.print("Set/unset mines marks or claim a cell as free: ");
+            params = input.nextLine().split(" ");
+            if (params.length != 3) {
                 System.out.println("Invalid number of arguments!");
                 continue;
             }
 
-            if (coords[0].matches("[1-9]") && coords[1].matches("[1-9]")) {
-                cell[0] = Integer.parseInt(coords[0]) - 1;
-                cell[1] = Integer.parseInt(coords[1]) - 1;
-            } else {
+            if (!params[0].matches("\\b([1-9])\\b") && !params[1].matches("\\b([1-9])\\b")) {
                 System.out.println("Need to enter two numbers between 1 and 9!");
                 continue;
             }
 
-            return cell;
+            if (!params[2].equals("mine") && !params[2].equals("free")) {
+                System.out.println("Invalid operation - must choose 'mine' or 'free'.");
+                continue;
+            }
+
+            return params;
         } while (true);
     }
 }
